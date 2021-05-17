@@ -10,10 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.Gson;
 
+import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.Pair;
 import dev.array21.invoicrpdf.Utils;
 import dev.array21.invoicrpdf.gson.FileIdResponse;
-import dev.array21.invoicrpdf.gson.InvalidSyntaxResponse;
+import dev.array21.invoicrpdf.gson.ErrorResponse;
 import dev.array21.invoicrpdf.gson.PdfInvoiceRequest;
 import dev.array21.invoicrpdf.pdf.InvoiceGenerator;
 
@@ -28,11 +29,15 @@ public class PdfGeneratorEndpoint {
 		PdfInvoiceRequest body = GSON.fromJson(bodyRaw, PdfInvoiceRequest.class);
 		Pair<Boolean, String> validation = Utils.validateType(body);
 		if(validation.getA() == null) {
-			return new ResponseEntity<String>(GSON.toJson(new InvalidSyntaxResponse(validation.getB())), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(GSON.toJson(new ErrorResponse(validation.getB())), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		if(!validation.getA()) {
-			return new ResponseEntity<String>(GSON.toJson(new InvalidSyntaxResponse(validation.getB())), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>(GSON.toJson(new ErrorResponse(validation.getB())), HttpStatus.BAD_REQUEST);
+		}
+		
+		if(!InvoicrPdf.getConfig().getApiKeys().contains(body.apiKey)) {
+			return new ResponseEntity<String>(GSON.toJson(new ErrorResponse("Invalid apiKey")), HttpStatus.FORBIDDEN);
 		}
 		
 		String fileId = Utils.randomString(16);

@@ -48,7 +48,7 @@ public class Utils {
 	 * @param <T> Type of input
 	 * @param input The input
 	 * @return Returns a Pair where:<br>
-     * 		- If A is null, an exception occured. Description contained in B.<br>
+     *		- If A is null, an exception occured. Description contained in B.<br>
  	 * 		- If A is false, the object did not pass validation. Description for the user contained in B<br>
  	 * 		- if A is true, the validation passed. B will be null
 	 */

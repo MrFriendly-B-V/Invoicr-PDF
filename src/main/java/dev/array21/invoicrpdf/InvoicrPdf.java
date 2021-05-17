@@ -7,14 +7,18 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import dev.array21.invoicrpdf.gson.Configuration;
+
 @SpringBootApplication
 public class InvoicrPdf {
     
 	private static final Logger LOGGER = LogManager.getLogger(InvoicrPdf.class);
 	private static boolean DEBUG = false;
+	private static Configuration config;
 	
 	public static void main(String[] args) {
 		String port = "8080";
+		String configPath = null;
 		
 		for(int i = 0; i < args.length; i++) {
 			switch(args[i]) {
@@ -31,11 +35,24 @@ public class InvoicrPdf {
 					port = args[1];
 					
 					break;
+				case "--config":
+					i++;
+					configPath = args[i];
+					break;
+					
 				default: 
 					logErr("Invalid argument");
 					break;
 			}
 		}
+		
+		if(configPath == null) {
+			logErr("Error: Missing required argument '--config <PATH TO CONFIG>'");
+			System.exit(1);
+		}
+		
+		Configuration config = new ConfigurationReader().read(configPath);
+		InvoicrPdf.config = config;
 		
 		logInfo("Starting on port " + port);
 		Properties sysProps = System.getProperties();
@@ -46,6 +63,10 @@ public class InvoicrPdf {
 	
 	private void init() {
 		SpringApplication.run(InvoicrPdf.class);
+	}
+	
+	public static Configuration getConfig() {
+		return InvoicrPdf.config;
 	}
 	
 	public static void logDebug(Object o) {

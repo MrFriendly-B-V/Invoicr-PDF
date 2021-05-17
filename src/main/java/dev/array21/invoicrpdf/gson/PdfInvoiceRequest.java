@@ -4,6 +4,14 @@ import dev.array21.invoicrpdf.annotations.JsonRequired;
 import dev.array21.invoicrpdf.annotations.Nullable;
 
 public strictfp class PdfInvoiceRequest extends AuthenticatedRequest {
+	
+	@JsonRequired
+	///The template to use for the invoice
+	public String invoiceTemplateName;
+	
+	@JsonRequired
+	public String language;
+	
 	///The ID the invoice should have
 	@JsonRequired
 	public String invoiceId;
@@ -44,12 +52,18 @@ public strictfp class PdfInvoiceRequest extends AuthenticatedRequest {
 	@JsonRequired
 	public Address address;
 	
+	public boolean hasRowDiscount() {
+		for(RequestRow row : this.rows) {
+			if(row.discountPerc != null && row.discountPerc != 0f) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	///Class describing the structure of a product on an invoice
 	public strictfp class RequestRow {
-		///The name of the VAT being applied (e.g VAT LOW)
-		@JsonRequired
-		public String vatName;
-		
 		///Any comment to be displayed under the product on the invoice
 		@Nullable
 		public String comment;
