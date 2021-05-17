@@ -1,0 +1,64 @@
+package dev.array21.invoicrpdf;
+
+import java.util.Properties;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class InvoicrPdf {
+    
+	private static final Logger LOGGER = LogManager.getLogger(InvoicrPdf.class);
+	private static boolean DEBUG = false;
+	
+	public static void main(String[] args) {
+		String port = "8080";
+		
+		for(int i = 0; i < args.length; i++) {
+			switch(args[i]) {
+				case "--debug":
+					DEBUG = true;
+					break;
+					
+				case "--port":
+					i++;
+					if(args[1] == null) {
+						logErr("Error: --port given, but no portnumber given.");
+						System.exit(1);
+					}
+					port = args[1];
+					
+					break;
+				default: 
+					logErr("Invalid argument");
+					break;
+			}
+		}
+		
+		logInfo("Starting on port " + port);
+		Properties sysProps = System.getProperties();
+		sysProps.setProperty("server.port", port);
+		
+		new InvoicrPdf().init();
+    }
+	
+	private void init() {
+		SpringApplication.run(InvoicrPdf.class);
+	}
+	
+	public static void logDebug(Object o) {
+		if(DEBUG) {
+			LOGGER.debug(o);
+		}
+	}
+	
+	public static void logErr(Object o) {
+		LOGGER.error(o);
+	}
+	
+	public static void logInfo(Object o) {
+		LOGGER.info(o);
+	}
+}

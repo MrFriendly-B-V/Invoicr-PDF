@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'eclipse'
+}
+
+group = 'dev.array21'
+mainClassName = 'dev.array21.invoicrpdf.Invoicr'
+sourceCompatibility = '11'
+targetCompatibility = '11'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.itextpdf:itextpdf:5.5.13.2'
+    compile 'com.google.code.gson:gson:2.8.6'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.apache.logging.log4j:log4j-core:2.14.1'
+    compile 'org.apache.logging.log4j:log4j-api:2.14.1'
+}
