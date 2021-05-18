@@ -1,4 +1,4 @@
-package dev.array21.invoicrpdf;
+package dev.array21.invoicrpdf.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
 
+import dev.array21.invoicrpdf.InvoicrPdf;
+import dev.array21.invoicrpdf.Pair;
 import dev.array21.invoicrpdf.annotations.JsonRequired;
 
 public class Utils {

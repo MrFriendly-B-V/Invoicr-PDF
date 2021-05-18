@@ -12,11 +12,11 @@ import com.google.gson.Gson;
 
 import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.Pair;
-import dev.array21.invoicrpdf.Utils;
 import dev.array21.invoicrpdf.gson.FileIdResponse;
 import dev.array21.invoicrpdf.gson.ErrorResponse;
 import dev.array21.invoicrpdf.gson.PdfInvoiceRequest;
 import dev.array21.invoicrpdf.pdf.InvoiceGenerator;
+import dev.array21.invoicrpdf.util.Utils;
 
 @RestController
 @RequestMapping("/pdf")

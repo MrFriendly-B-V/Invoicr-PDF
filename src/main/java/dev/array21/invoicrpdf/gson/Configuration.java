@@ -12,9 +12,9 @@ import com.google.gson.Gson;
 
 import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.Pair;
-import dev.array21.invoicrpdf.Utils;
 import dev.array21.invoicrpdf.annotations.JsonRequired;
 import dev.array21.invoicrpdf.annotations.Nullable;
+import dev.array21.invoicrpdf.util.Utils;
 
 public class Configuration {
 	@JsonRequired
