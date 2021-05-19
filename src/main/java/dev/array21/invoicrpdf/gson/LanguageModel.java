@@ -56,10 +56,6 @@ public class LanguageModel {
 	@JsonRequired
 	public String productTotal;
 	
-	/**Discount applied over the entire invoice header*/
-	@JsonRequired
-	public String totalDiscount;
-	
 	/**The total price excluding VAT header*/
 	@JsonRequired
 	public String totalExVat;
