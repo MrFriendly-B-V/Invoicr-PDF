@@ -12,17 +12,27 @@ import com.google.gson.Gson;
 
 import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.Pair;
-import dev.array21.invoicrpdf.annotations.JsonRequired;
+import dev.array21.invoicrpdf.annotations.Required;
 import dev.array21.invoicrpdf.annotations.Nullable;
 import dev.array21.invoicrpdf.util.Utils;
 
 public class Configuration {
-	@JsonRequired
-	Template[] templates;
+	/**Configured templates*/
+	@Required
+	public Template[] templates;
 	
-	@JsonRequired
-	String[] apiKeys;
+	@Required
+	public HmacKey[] hmacKeys;
 	
+	/**The directory to write generated PDFs too*/
+	@Required
+	public String outDir;
+	
+	/**
+	 * Get a template
+	 * @param name The name of the template
+	 * @return Returns the template, or null if it doesn't exist
+	 */
 	@Nullable
 	public Template getTemplate(String name) {
 		for(Template t : this.templates) {
@@ -34,26 +44,44 @@ public class Configuration {
 		return null;
 	}
 	
-	public List<String> getApiKeys() {
-		return Arrays.asList(this.apiKeys);
+	/**
+	 * Get all HMAC keys as a List
+	 * @return Returns all configured HMAC keys
+	 */
+	public List<HmacKey> getHmacKeys() {
+		return Arrays.asList(this.hmacKeys);
 	}
 	
+	public class HmacKey {
+		@Required
+		public String key;
+		
+		@Required
+		public String secret;
+	}
+	
+	/**
+	 * Configuration template
+	 */
 	public class Template {
-		@JsonRequired
+		
+		/**The name of the template*/
+		@Required
 		public String templateName;
 		
-		@JsonRequired
-		public String companyName;
-		
-		@JsonRequired
+		/**Full path to the logo to be used in this template. On Windows double backslashes should be used*/
+		@Required
 		public String logoPath;
 		
-		@JsonRequired
-		public String outDir;
-		
-		@JsonRequired
+		/**Folder in which the language files for this template reside. This may be shared with other templates too*/
+		@Required
 		public String langPacks;
 		
+		/**
+		 * Get a language model from the template
+		 * @param language The name of the language model
+		 * @return Returns the requested model, or null if it doesn't exist, or if it doesn't pass validation
+		 */
 		@Nullable
 		public LanguageModel getLanguageModel(String language) {
 			File modelFile = new File(this.langPacks, language + ".yml");

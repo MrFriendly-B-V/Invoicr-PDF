@@ -1,27 +1,28 @@
 package dev.array21.invoicrpdf.gson;
 
-import dev.array21.invoicrpdf.annotations.JsonRequired;
+import dev.array21.invoicrpdf.annotations.External;
+import dev.array21.invoicrpdf.annotations.Required;
 import dev.array21.invoicrpdf.annotations.Nullable;
 
-public strictfp class PdfInvoiceRequest extends AuthenticatedRequest {
+public strictfp class PdfInvoiceRequest {
 	
-	@JsonRequired
+	@Required
 	/**The template to use for the invoice*/
 	public String invoiceTemplateName;
 	
-	@JsonRequired
+	@Required
 	public String language;
 	
 	/**The ID the invoice should have*/
-	@JsonRequired
+	@Required
 	public String invoiceId;
 	
 	/**The name of the person/organization to which the Invoice is addressed*/
-	@JsonRequired
+	@Required
 	public String receiver;
 	
 	/**The reference of the invoice*/
-	@JsonRequired
+	@Required
 	public String reference;
 	
 	/**For which administration in a company is this invoice*/
@@ -37,19 +38,20 @@ public strictfp class PdfInvoiceRequest extends AuthenticatedRequest {
 	public Float discountPerc;
 	
 	/**The expiration date in Unix time*/
-	@JsonRequired
+	@Required
 	public Long expDate;
 	
 	/**The date the invoice was created in Unix time*/
-	@JsonRequired
+	@Required
 	public Long invoiceDate;
 	
 	/**The products to be displayed on the invoice*/
-	@JsonRequired
+	@Required
 	public RequestRow[] rows;
 
 	/**The billing address to be displayed on the invoice*/
-	@JsonRequired
+	@Required
+	@External
 	public Address address;
 	
 	public boolean hasRowDiscount() {
@@ -69,15 +71,15 @@ public strictfp class PdfInvoiceRequest extends AuthenticatedRequest {
 		public String comment;
 		
 		/**The ID of the product*/
-		@JsonRequired
+		@Required
 		public String id;
 		
 		/**The name of the product*/
-		@JsonRequired
+		@Required
 		public String name;
 		
 		/**Short description of the product*/
-		@JsonRequired
+		@Required
 		public String description;
 		
 		/**Discount to be applied to this item only*/
@@ -85,30 +87,15 @@ public strictfp class PdfInvoiceRequest extends AuthenticatedRequest {
 		public Float discountPerc;
 		
 		/**The VAT percentage. Range 0-100%*/
-		@JsonRequired
+		@Required
 		public Float vatPerc;
 		
 		/**The price of the product, excluding VAT*/
-		@JsonRequired
+		@Required
 		public Float price;
 		
 		/**The amount of items to be invoiced*/
-		@JsonRequired
+		@Required
 		public Long quantity;
-	}
-
-	/**Class describing the structure of the address on an invoice*/
-	public class Address {
-		@JsonRequired
-		public String city;
-		
-		@JsonRequired
-		public String country;
-		
-		@JsonRequired
-		public String postalCode;
-		
-		@JsonRequired
-		public String street;
 	}
 }

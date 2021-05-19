@@ -40,6 +40,7 @@ import dev.array21.invoicrpdf.gson.PdfInvoiceRequest;
 public strictfp class InvoiceGenerator {
 
 	private final PdfInvoiceRequest body;
+	private final static String EURO = "\u20ac";
 	
 	public InvoiceGenerator(PdfInvoiceRequest body) {
 		this.body = body;
@@ -61,7 +62,7 @@ public strictfp class InvoiceGenerator {
 		//Lets create the document
 		PdfDocument pdf;
 		try {
-			pdf = new PdfDocument(new PdfWriter(new File(template.outDir, fileId + ".pdf")));
+			pdf = new PdfDocument(new PdfWriter(new File(InvoicrPdf.getConfig().outDir, fileId + ".pdf")));
 		} catch(FileNotFoundException e) {
 			e.printStackTrace();
 			return;
@@ -196,15 +197,15 @@ public strictfp class InvoiceGenerator {
 			productsTable.addCell(new Cell().add(new Paragraph(row.id)).setBorder(Border.NO_BORDER));
 			productsTable.addCell(new Cell().add(new Paragraph(row.description)).setBorder(Border.NO_BORDER).setMaxWidth(UnitValue.createPointValue(70f)));
 			productsTable.addCell(new Cell().add(new Paragraph(row.quantity.toString())).setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.CENTER));
-			productsTable.addCell(new Cell().add(new Paragraph("€" + new BigDecimal((double) row.price).setScale(2, RoundingMode.HALF_UP).toString()).setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));
+			productsTable.addCell(new Cell().add(new Paragraph(EURO + new BigDecimal((double) row.price).setScale(2, RoundingMode.HALF_UP).toString()).setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));
 			
 			if(rowDiscount) {
 				productsTable.addCell(new Cell().add(new Paragraph(new BigDecimal((double) row.discountPerc).setScale(1, RoundingMode.HALF_UP).toString() + "%").setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));
-				productsTable.addCell(new Cell().add(new Paragraph("€" + new BigDecimal((double) totalProductPrice).setScale(2, RoundingMode.HALF_UP).toString()).setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));
+				productsTable.addCell(new Cell().add(new Paragraph(EURO + new BigDecimal((double) totalProductPrice).setScale(2, RoundingMode.HALF_UP).toString()).setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));
 			}
 			
 			productsTable.addCell(new Cell().add(new Paragraph(new BigDecimal((double) row.vatPerc).setScale(1, RoundingMode.HALF_UP).toString() + "%").setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));
-			productsTable.addCell(new Cell().add(new Paragraph("€" + new BigDecimal((double) totalProductPrice).setScale(2, RoundingMode.HALF_UP).toString()).setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));			
+			productsTable.addCell(new Cell().add(new Paragraph(EURO + new BigDecimal((double) totalProductPrice).setScale(2, RoundingMode.HALF_UP).toString()).setTextAlignment(TextAlignment.RIGHT)).setBorder(Border.NO_BORDER));			
 		
 			//If the product specified a comment, we want to add that too.
 			//The comment cell will have a different collumn span depending on if we have a discount too
@@ -235,17 +236,17 @@ public strictfp class InvoiceGenerator {
 		totalsTable.setWidth(pdf.getDefaultPageSize().getWidth() / 3);
 		totalsTable.startNewRow();
 		totalsTable.addCell(new Cell().add(new Paragraph(languageModel.totalExVat)).setBold().setBorder(Border.NO_BORDER));
-		totalsTable.addCell(new Cell().add(new Paragraph("€")).setBorder(Border.NO_BORDER));
+		totalsTable.addCell(new Cell().add(new Paragraph(EURO)).setBorder(Border.NO_BORDER));
 		totalsTable.addCell(new Cell().add(new Paragraph(new BigDecimal((double) totalPrice).setScale(2, RoundingMode.HALF_UP).toString())).setBorder(Border.NO_BORDER));
 		
 		totalsTable.startNewRow();
 		totalsTable.addCell(new Cell().add(new Paragraph(languageModel.totalVat)).setBold().setBorder(Border.NO_BORDER));
-		totalsTable.addCell(new Cell().add(new Paragraph("€")).setBorder(Border.NO_BORDER));
+		totalsTable.addCell(new Cell().add(new Paragraph(EURO)).setBorder(Border.NO_BORDER));
 		totalsTable.addCell(new Cell().add(new Paragraph(new BigDecimal((double) totalVat).setScale(2, RoundingMode.HALF_UP).toString())).setBorder(Border.NO_BORDER));
 
 		totalsTable.startNewRow();
 		totalsTable.addCell(new Cell().add(new Paragraph(languageModel.totalPrice)).setBold().setBorder(Border.NO_BORDER).setBorderTop(new SolidBorder(1f)));
-		totalsTable.addCell(new Cell().add(new Paragraph("€")).setBorder(Border.NO_BORDER).setBorderTop(new SolidBorder(1f)));
+		totalsTable.addCell(new Cell().add(new Paragraph(EURO)).setBorder(Border.NO_BORDER).setBorderTop(new SolidBorder(1f)));
 		totalsTable.addCell(new Cell().add(new Paragraph(new BigDecimal((double) (totalPrice + totalVat)).setScale(2, RoundingMode.HALF_UP).toString())).setBorder(Border.NO_BORDER).setBorderTop(new SolidBorder(1f)));
 		
 		//Let's create a 'custom' renderer so we can grab the actual width of the totalsTable

@@ -1,9 +1,8 @@
 templates:
   - templateName: mrfriendly
-    companyName: mrfriendly
     logoPath: A:\\code\\invoirc-pdf\\bin\\templates\\mrfriendly\\logo.png
-    outDir: A:\\code\\invoicr-pdf\\bin\\templates\\mrfriendly\\out
     langPacks: A:\\code\\invoicr-pdf\\bin\\langs
 
 apiKeys:
 - "aaaa"
+outDir: A:\\code\\invoicr-pdf\\bin\\out

@@ -13,7 +13,8 @@ import dev.array21.invoicrpdf.gson.Configuration;
 public class InvoicrPdf {
     
 	private static final Logger LOGGER = LogManager.getLogger(InvoicrPdf.class);
-	private static boolean DEBUG = false;
+	public static boolean DEBUG = false;
+	public static boolean AUTH = true;
 	private static Configuration config;
 	
 	public static void main(String[] args) {
@@ -25,7 +26,6 @@ public class InvoicrPdf {
 				case "--debug":
 					DEBUG = true;
 					break;
-					
 				case "--port":
 					i++;
 					if(args[1] == null) {
@@ -39,7 +39,10 @@ public class InvoicrPdf {
 					i++;
 					configPath = args[i];
 					break;
-					
+				case "--no-auth":
+					AUTH = false;
+					logErr("WARNING: You have disabled authentication. DO NOT use this in production!");
+					break;
 				default: 
 					logErr("Invalid argument");
 					break;

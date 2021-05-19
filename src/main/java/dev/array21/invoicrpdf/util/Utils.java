@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
 
 import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.Pair;
-import dev.array21.invoicrpdf.annotations.JsonRequired;
+import dev.array21.invoicrpdf.annotations.External;
+import dev.array21.invoicrpdf.annotations.Required;
 
 public class Utils {
 	private static final String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -46,7 +47,7 @@ public class Utils {
 	
 	/**
 	 * Validate an Object to it's class<br>
-	 * Required fields should be annotated with {@link JsonRequired}
+	 * Required fields should be annotated with {@link Required}
 	 * @param <T> Type of input
 	 * @param input The input
 	 * @return Returns a Pair where:<br>
@@ -68,11 +69,11 @@ public class Utils {
 		
 		List<Class<?>> internalClasses = Arrays.asList(input.getClass().getDeclaredClasses());
 		for(Field f : fields) {
-			if(f.getAnnotation(JsonRequired.class) != null) {
+			if(f.isAnnotationPresent(Required.class)) {
 				try {
 					f.setAccessible(true);
 					if(f.get(input) == null) {
-						return new Pair<Boolean, String>(false, "Missing required field in JSON: " + f.getName());
+						return new Pair<Boolean, String>(false, "Missing required field: " + f.getName());
 					}
 					
 					if(f.getType().isArray() && internalClasses.contains(f.getType().getComponentType())) {
@@ -94,7 +95,7 @@ public class Utils {
 						}
 					}
 					
-					if(internalClasses.contains(f.getType())) {
+					if(internalClasses.contains(f.getType()) || f.isAnnotationPresent(External.class)) {
 						Pair<Boolean, String> innerValidation = validateType(f.get(input));
 						if(innerValidation.getA() != null && innerValidation.getA() == true) {
 							continue;
