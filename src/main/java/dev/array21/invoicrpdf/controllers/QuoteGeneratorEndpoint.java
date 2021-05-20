@@ -42,7 +42,7 @@ public class QuoteGeneratorEndpoint {
 			return new ResponseEntity<String>(GSON.toJson(new ErrorResponse(validation.getB())), HttpStatus.BAD_REQUEST);
 		}
 		
-		if(InvoicrPdf.AUTH && !HmacValidator.validateHmac(hmacHeader, "POST", "generate/invoice")) {
+		if(InvoicrPdf.AUTH && !HmacValidator.validateHmac(hmacHeader, "POST", "generate/quote")) {
 			return new ResponseEntity<String>(GSON.toJson(new ErrorResponse("Invalid HMAC key")), HttpStatus.FORBIDDEN);
 		}
 		

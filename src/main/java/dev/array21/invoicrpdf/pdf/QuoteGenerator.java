@@ -125,7 +125,7 @@ public strictfp class QuoteGenerator {
 		Table leftReference = new Table(new float[] { 1f, 1f});
 		leftReference.startNewRow();
 		leftReference.addCell(PdfUtil.getCell(languageModel.quoteId, true, null));
-		leftReference.addCell(PdfUtil.getCell(": " + body.id));
+		leftReference.addCell(PdfUtil.getCell(": " + body.id.toString()));
 		
 		leftReference.startNewRow();
 		leftReference.addCell(PdfUtil.getCell(languageModel.quoteDate, true, null));

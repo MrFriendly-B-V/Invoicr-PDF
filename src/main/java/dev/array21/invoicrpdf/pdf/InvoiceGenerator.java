@@ -147,7 +147,7 @@ public strictfp class InvoiceGenerator {
 		referenceTable.addCell(PdfUtil.getCell(dateFormatter.format(invoiceDate)));
 		
 		//Lastly, invoice ID
-		referenceTable.addCell(PdfUtil.getCell(body.id));
+		referenceTable.addCell(PdfUtil.getCell(body.id.toString()));
 		doc.add(referenceTable);
 
 		//Add another black line

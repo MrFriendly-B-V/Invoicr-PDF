@@ -17,7 +17,7 @@ public class PdfCommonRequest {
 	
 	/**The ID the invoice or quote should have*/
 	@Required
-	public String id;
+	public Long id;
 	
 	/**For which administration in a company is this invoice*/
 	@Nullable
