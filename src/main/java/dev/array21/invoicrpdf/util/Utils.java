@@ -76,7 +76,7 @@ public class Utils {
 						return new Pair<Boolean, String>(false, "Missing required field: " + f.getName());
 					}
 					
-					if(f.getType().isArray() && internalClasses.contains(f.getType().getComponentType())) {
+					if(f.getType().isArray() && (internalClasses.contains(f.getType().getComponentType()) || f.isAnnotationPresent(External.class))) {
 						Object[] oArr = (Object[]) f.get(input);
 						
 						inner: for(int j = 0; j < oArr.length; j++) {

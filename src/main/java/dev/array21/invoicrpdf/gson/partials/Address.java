@@ -1,4 +1,4 @@
-package dev.array21.invoicrpdf.gson;
+package dev.array21.invoicrpdf.gson.partials;
 
 import dev.array21.invoicrpdf.annotations.Required;
 

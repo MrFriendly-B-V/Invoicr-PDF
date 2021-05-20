@@ -7,7 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import dev.array21.invoicrpdf.gson.Configuration;
+import dev.array21.invoicrpdf.gson.config.Configuration;
 
 @SpringBootApplication
 public class InvoicrPdf {
@@ -28,11 +28,11 @@ public class InvoicrPdf {
 					break;
 				case "--port":
 					i++;
-					if(args[1] == null) {
+					if(args[i] == null) {
 						logErr("Error: --port given, but no portnumber given.");
 						System.exit(1);
 					}
-					port = args[1];
+					port = args[i];
 					
 					break;
 				case "--config":

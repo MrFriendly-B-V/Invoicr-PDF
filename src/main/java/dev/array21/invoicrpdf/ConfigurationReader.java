@@ -10,7 +10,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.google.gson.Gson;
 
-import dev.array21.invoicrpdf.gson.Configuration;
+import dev.array21.invoicrpdf.gson.config.Configuration;
 import dev.array21.invoicrpdf.util.Utils;
 
 public class ConfigurationReader {

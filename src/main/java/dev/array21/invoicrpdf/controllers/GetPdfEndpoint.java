@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.Pair;
 import dev.array21.invoicrpdf.auth.HmacValidator;
-import dev.array21.invoicrpdf.gson.GetPdfRequest;
+import dev.array21.invoicrpdf.gson.requests.GetPdfRequest;
 import dev.array21.invoicrpdf.util.Utils;
 
 @RestController
@@ -29,7 +29,7 @@ public class GetPdfEndpoint {
 	private static final Gson GSON = new Gson();
 	
 	@RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_PDF_VALUE)
-	public @ResponseBody ResponseEntity<byte[]> getInvoice(@RequestBody String bodyRaw, @RequestHeader(value = "X-Hmac-Authorization", required = false) String hmacHeader) {
+	public @ResponseBody ResponseEntity<byte[]> getPdf(@RequestBody String bodyRaw, @RequestHeader(value = "X-Hmac-Authorization", required = false) String hmacHeader) {
 		if(hmacHeader == null) {
 			return new ResponseEntity<byte[]>(new byte[0], HttpStatus.UNAUTHORIZED);
 		}
@@ -48,7 +48,17 @@ public class GetPdfEndpoint {
 			return new ResponseEntity<byte[]>(new byte[0], HttpStatus.FORBIDDEN);
 		}
 		
-		File pdfFile = new File(InvoicrPdf.getConfig().outDir, body.id + ".pdf");
+		String pdfType = null;
+		switch(body.type) {
+		case INVOICE:
+			pdfType = "invoice";
+			break;
+		case QUOTE:
+			pdfType = "quote";
+			break;
+		}
+		
+		File pdfFile = new File(InvoicrPdf.getConfig().outDir, String.format("%s.%s.pdf", pdfType, body.id));
 		if(!pdfFile.exists()) {
 			return new ResponseEntity<byte[]>(new byte[0], HttpStatus.NOT_FOUND);
 		}
@@ -57,7 +67,7 @@ public class GetPdfEndpoint {
 		try {
 			fileContent = Files.readAllBytes(pdfFile.toPath());
 		} catch(IOException e) {
-			InvoicrPdf.logErr(String.format("Failed to read PDF file '%s.pdf': %s", body.id, e.getMessage()));
+			InvoicrPdf.logErr(String.format("Failed to read PDF file '%s.%s.pdf': %s", pdfType, body.id, e.getMessage()));
 			InvoicrPdf.logDebug(Utils.getStackTrace(e));
 			
 			return new ResponseEntity<byte[]>(new byte[0], HttpStatus.INTERNAL_SERVER_ERROR);

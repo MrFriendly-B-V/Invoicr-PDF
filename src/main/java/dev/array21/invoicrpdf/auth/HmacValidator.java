@@ -1,5 +1,6 @@
 package dev.array21.invoicrpdf.auth;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -11,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.annotations.Nullable;
-import dev.array21.invoicrpdf.gson.Configuration.HmacKey;
+import dev.array21.invoicrpdf.gson.config.HmacKey;
 import dev.array21.invoicrpdf.util.Utils;
 
 public class HmacValidator {
@@ -31,16 +32,8 @@ public class HmacValidator {
 			return false;
 		}
 		
-		String apiKey = parts[0];
-		String rxDigest = parts[1];
-		byte[] rxDigestBytes;
-		try {
-			 rxDigestBytes = Base64.getDecoder().decode(rxDigest.getBytes());
-		} catch(IllegalArgumentException e) {
-			return false;
-		}
-		
-		String matchedSecretKey = getHmacSecret(apiKey);
+		String apiKey = parts[0];		
+		String matchedSecretKey = getHmacSecret(new String(Base64.getDecoder().decode(apiKey.getBytes()), StandardCharsets.UTF_8));
 		if(matchedSecretKey == null) {
 			return false;
 		}
@@ -63,8 +56,8 @@ public class HmacValidator {
 			return false;
 		}
 		
-		byte[] digest = mac.doFinal(String.format("%s / %s", method, path).getBytes());
-		return digest == rxDigestBytes;
+		byte[] digest = mac.doFinal(String.format("%s /%s", method, path).getBytes());
+		return new String(Base64.getEncoder().encode(digest), StandardCharsets.UTF_8).equals(parts[1]);
 	}
 	
 	private static String getHmacSecret(String key) {

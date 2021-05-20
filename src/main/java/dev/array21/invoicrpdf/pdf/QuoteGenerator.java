@@ -31,30 +31,31 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.renderer.IRenderer;
 
-import dev.array21.invoicrpdf.gson.config.InvoiceLanguageModel;
+import dev.array21.invoicrpdf.InvoicrPdf;
 import dev.array21.invoicrpdf.gson.config.ModelType;
+import dev.array21.invoicrpdf.gson.config.QuoteLanguageModel;
 import dev.array21.invoicrpdf.gson.config.Template;
 import dev.array21.invoicrpdf.gson.partials.ItemRow;
-import dev.array21.invoicrpdf.gson.requests.PdfCommonRequest;
+import dev.array21.invoicrpdf.gson.requests.PdfQuoteRequest;
 import dev.array21.invoicrpdf.util.PdfUtil;
-import dev.array21.invoicrpdf.InvoicrPdf;
 
-public strictfp class InvoiceGenerator {
-
-	private final PdfCommonRequest body;
+public strictfp class QuoteGenerator {
+	
+	private final PdfQuoteRequest body;
 	private final static String EURO = "\u20ac";
 	
-	public InvoiceGenerator(PdfCommonRequest body) {
+	public QuoteGenerator(PdfQuoteRequest body) {
 		this.body = body;
 	}
 	
 	public strictfp void generate(String fileId) {
-		Template template = InvoicrPdf.getConfig().getTemplate(this.body.templateName);
-		InvoiceLanguageModel languageModel = (InvoiceLanguageModel) template.getLanguageModel(body.language, ModelType.INVOICE);
+		Template template = InvoicrPdf.getConfig().getTemplate(body.templateName);
+		QuoteLanguageModel languageModel = (QuoteLanguageModel) template.getLanguageModel(body.language, ModelType.QUOTE);
 		if(languageModel == null) {
+			InvoicrPdf.logErr("Unable to find quote language model for language " + body.language);
 			return;
 		}
-
+		
 		//Simply, a black line
 		SolidLine blackLine = new SolidLine(1f);
 		blackLine.setColor(ColorConstants.BLACK);
@@ -64,20 +65,20 @@ public strictfp class InvoiceGenerator {
 		//Lets create the document
 		PdfDocument pdf;
 		try {
-			pdf = new PdfDocument(new PdfWriter(new File(InvoicrPdf.getConfig().outDir, fileId + ".invoice.pdf")));
+			pdf = new PdfDocument(new PdfWriter(new File(InvoicrPdf.getConfig().outDir, fileId + ".quote.pdf")));
 		} catch(FileNotFoundException e) {
 			e.printStackTrace();
 			return;
 		}
 		
 		Document doc = new Document(pdf);		
-		doc.setMargins(40f, 30f, 40f, 30f);		
+		doc.setMargins(40f, 30f, 40f, 30f);
 		
-		//The addressing is at the top of the invoice, it describes for whom it's ment
+		//The addressing is at the top of the quote, it describes for whom it's ment
 		Paragraph addressing = new Paragraph();
 		addressing.add(new Text(body.receiver + "\n").setBold());
 		if(body.attentionOf != null) {
-			addressing.add(new Text(body.attentionOf + "\n").setBold());
+			addressing.add(new Text(body.attentionOf + "\n"));
 		}
 		addressing.add(new Text(body.address.street + "\n"));
 		addressing.add(new Text(body.address.postalCode + " " + body.address.city + "\n"));
@@ -87,7 +88,7 @@ public strictfp class InvoiceGenerator {
 		Table heading = new Table(new float[] {1f, 1f});
 		heading.startNewRow();
 		heading.setHorizontalAlignment(HorizontalAlignment.CENTER);
-
+		
 		Cell addressingCell = new Cell();
 		addressingCell.add(addressing);
 		addressingCell.setWidth(UnitValue.createPercentValue(50f));
@@ -106,51 +107,60 @@ public strictfp class InvoiceGenerator {
 		}
 		doc.add(heading);
 		
-		//The invoiceheader is simple, it screams INVOICE (depending on the languageModel used)
-		Paragraph invoiceHeader = new Paragraph(languageModel.invoiceHeader);
-		invoiceHeader.setHorizontalAlignment(HorizontalAlignment.LEFT);
-		invoiceHeader.setWidth(pdf.getDefaultPageSize().getWidth() - doc.getLeftMargin() - doc.getRightMargin());
-		invoiceHeader.setTextAlignment(TextAlignment.RIGHT);
-		invoiceHeader.setBold();
-		invoiceHeader.setFontSize(30);		
-		doc.add(invoiceHeader);
-
-		//Add a black line to mark out the areas clearly
-		doc.add(new LineSeparator(blackLine));
+		//The header is simple, it screams QUOTE (depending on the languageModel used)
+		Paragraph header = new Paragraph(languageModel.quoteHeader);
+		header.setHorizontalAlignment(HorizontalAlignment.LEFT);
+		header.setWidth(pdf.getDefaultPageSize().getWidth() - doc.getLeftMargin() - doc.getRightMargin());
+		header.setTextAlignment(TextAlignment.RIGHT);
+		header.setBold();
+		header.setFontSize(30);		
+		doc.add(header);
 		
-		//The reference table contains information about the invoice
-		//- A customer-set reference
-		//- Invoice date
-		//- Expiry date
-		//- Invoice ID
-		//The first row are the headers
-		Table referenceTable = new Table(new float[] {3, 1, 1, 1});
+		Table referenceTable = new Table(new float[] {1f, 1f});
+		referenceTable.setBorder(Border.NO_BORDER);
 		referenceTable.setHorizontalAlignment(HorizontalAlignment.CENTER);
 		referenceTable.useAllAvailableWidth();
 		referenceTable.startNewRow();
-		referenceTable.addCell(PdfUtil.getCell(languageModel.reference, true, null));
-		referenceTable.addCell(PdfUtil.getCell(languageModel.invoiceDate, true, null));
-		referenceTable.addCell(PdfUtil.getCell(languageModel.expiryDate, true, null));
-		referenceTable.addCell(PdfUtil.getCell(languageModel.invoiceId, true, null));
 		
-		//The second row are the values matching to the headers
-		//First of all the reference, set by the customer
-		referenceTable.startNewRow();
-		referenceTable.addCell(PdfUtil.getCell(body.reference));
+		Table leftReference = new Table(new float[] { 1f, 1f});
+		leftReference.startNewRow();
+		leftReference.addCell(PdfUtil.getCell(languageModel.quoteId, true, null));
+		leftReference.addCell(PdfUtil.getCell(": " + body.id));
 		
-		//Invoice Expiry date
-		Date expiryDate = new Date(body.expiryDate);
-		referenceTable.addCell(PdfUtil.getCell(dateFormatter.format(expiryDate)));
-		
-		//Invoice date
-		Date invoiceDate = new Date(body.creationDate);
-		referenceTable.addCell(PdfUtil.getCell(dateFormatter.format(invoiceDate)));
-		
-		//Lastly, invoice ID
-		referenceTable.addCell(PdfUtil.getCell(body.id));
-		doc.add(referenceTable);
+		leftReference.startNewRow();
+		leftReference.addCell(PdfUtil.getCell(languageModel.quoteDate, true, null));
+		Date creationDate = new Date(body.creationDate);
+		leftReference.addCell(PdfUtil.getCell(": " + dateFormatter.format(creationDate)));
 
-		//Add another black line
+		leftReference.startNewRow();
+		leftReference.addCell(PdfUtil.getCell(languageModel.quoteExpiryDate, true, null));
+		Date expiryDate = new Date(body.expiryDate);
+		leftReference.addCell(PdfUtil.getCell(": " + dateFormatter.format(expiryDate)));
+		
+		leftReference.startNewRow();
+		leftReference.addCell(PdfUtil.getCell(languageModel.contactPerson, true, null));
+		leftReference.addCell(PdfUtil.getCell(": " + body.quoteContactPerson));
+		
+		referenceTable.addCell(new Cell().add(leftReference).setBorder(Border.NO_BORDER));
+		
+		Table rightReference = new Table(new float[] {1f, 1f});
+		rightReference.startNewRow();
+		rightReference.addCell(PdfUtil.getCell(languageModel.debitId, true, null));
+		rightReference.addCell(PdfUtil.getCell(": " + body.debitId));
+		
+		rightReference.startNewRow();
+		rightReference.addCell(PdfUtil.getCell(languageModel.reference, true, null));
+		rightReference.addCell(PdfUtil.getCell(": " + ((body.reference != null) ? body.reference : "")));
+		
+		referenceTable.addCell(new Cell().add(rightReference).setBorder(Border.NO_BORDER));
+		doc.add(referenceTable);
+		
+		Table topicTable = new Table(new float[] {1f, 1f});
+		topicTable.startNewRow();
+		topicTable.addCell(PdfUtil.getCell(languageModel.topic, true, null));
+		topicTable.addCell(PdfUtil.getCell(": " + ((body.quoteTopic != null) ? body.quoteTopic : "")));
+		
+		doc.add(topicTable);
 		doc.add(new LineSeparator(blackLine));
 		
 		//Check if we give a discount, thisll change the column layout of the products table
@@ -176,11 +186,11 @@ public strictfp class InvoiceGenerator {
 		
 		//If a discount is given, add those headers too
 		if(rowDiscount) {
-			productsTable.addCell(PdfUtil.getCell(languageModel.productDiscount, true, TextAlignment.CENTER));
+			productsTable.addCell(PdfUtil.getCell(languageModel.productDiscount, true, TextAlignment.RIGHT));
 			productsTable.addCell(PdfUtil.getCell(languageModel.productAmount, true, TextAlignment.RIGHT));
 		}
 		
-		productsTable.addCell(PdfUtil.getCell(languageModel.productVat, true, TextAlignment.CENTER));
+		productsTable.addCell(PdfUtil.getCell(languageModel.productVat, true, TextAlignment.RIGHT));
 		productsTable.addCell(PdfUtil.getCell(languageModel.productTotal, true, TextAlignment.RIGHT));
 		
 		//Now let's iterate over every product and add it to the table
@@ -210,13 +220,13 @@ public strictfp class InvoiceGenerator {
 			}
 			
 			productsTable.addCell(PdfUtil.getCell(new BigDecimal((double) row.vatPerc).setScale(1, RoundingMode.HALF_UP).toString() + "%", false, TextAlignment.CENTER));
-			productsTable.addCell(PdfUtil.getCell(EURO + new BigDecimal((double) totalProductPrice).setScale(2, RoundingMode.HALF_UP).toString(), false, TextAlignment.RIGHT));			
+			productsTable.addCell(PdfUtil.getCell(EURO + new BigDecimal((double) totalProductPrice).setScale(2, RoundingMode.HALF_UP).toString(), false, TextAlignment.RIGHT));				
 		
 			//If the product specified a comment, we want to add that too.
 			//The comment cell will have a different collumn span depending on if we have a discount too
 			if(row.comment != null) {
 				productsTable.startNewRow();
-				productsTable.addCell(PdfUtil.getCell(" "));
+				productsTable.addCell(new Cell().add(new Paragraph(" ")).setBorder(Border.NO_BORDER));
 				
 				Cell c = new Cell(1, (rowDiscount) ? 7 : 5);
 				c.setBorder(Border.NO_BORDER);
@@ -226,7 +236,7 @@ public strictfp class InvoiceGenerator {
 		}
 		
 		doc.add(productsTable);
-		
+
 		//If there is a general note, let's attach it to thre invoice
 		if(body.notes != null) {
 			doc.add(new Paragraph(body.notes));
@@ -240,7 +250,7 @@ public strictfp class InvoiceGenerator {
 		Table totalsTable = new Table(new float[] {4f, 1f, 3f});
 		totalsTable.setWidth(pdf.getDefaultPageSize().getWidth() / 3);
 		totalsTable.startNewRow();
-		totalsTable.addCell(PdfUtil.getCell(languageModel.totalExVat, true, null));
+		totalsTable.addCell(PdfUtil.getCell(languageModel.totalExclVat, true, null));
 		totalsTable.addCell(PdfUtil.getCell(EURO));
 		totalsTable.addCell(PdfUtil.getCell(new BigDecimal((double) totalPrice).setScale(2, RoundingMode.HALF_UP).toString()));
 		
@@ -250,10 +260,10 @@ public strictfp class InvoiceGenerator {
 		totalsTable.addCell(PdfUtil.getCell(new BigDecimal((double) totalVat).setScale(2, RoundingMode.HALF_UP).toString()));
 
 		totalsTable.startNewRow();
-		totalsTable.addCell(PdfUtil.getCell(languageModel.totalPrice, true, null).setBorderTop(new SolidBorder(1f)));
+		totalsTable.addCell(PdfUtil.getCell(languageModel.totalInclVat)).setBorderTop(new SolidBorder(1f));
 		totalsTable.addCell(PdfUtil.getCell(EURO).setBorderTop(new SolidBorder(1f)));
-		totalsTable.addCell(PdfUtil.getCell(new BigDecimal((double) (totalPrice + totalVat)).setScale(2, RoundingMode.HALF_UP).toString()).setBorderTop(new SolidBorder(1f)));
-		
+		totalsTable.addCell(PdfUtil.getCell(new BigDecimal((double) (totalPrice + totalVat)).setScale(2, RoundingMode.HALF_UP).toString())).setBorderTop(new SolidBorder(1f));
+	
 		//Let's create a 'custom' renderer so we can grab the actual width of the totalsTable
 		IRenderer tableRenderer = totalsTable.createRendererSubTree().setParent(doc.getRenderer());
 		LayoutResult tableLayoutResult = tableRenderer.layout(new LayoutContext(new LayoutArea(0, new Rectangle(pdf.getDefaultPageSize().getWidth(), 1000f))));

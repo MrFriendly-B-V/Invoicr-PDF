@@ -1,9 +1,9 @@
-package dev.array21.invoicrpdf.gson;
+package dev.array21.invoicrpdf.gson.config;
 
 import dev.array21.invoicrpdf.annotations.Required;
 
 /** Class describing the layout of the language model*/
-public class LanguageModel {
+public class InvoiceLanguageModel extends LanguageModel {
 	/**Title of the invoice, displayed in capital bold letters*/
 	@Required
 	public String invoiceHeader;
