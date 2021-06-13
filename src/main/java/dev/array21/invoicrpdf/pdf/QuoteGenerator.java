@@ -216,7 +216,7 @@ public strictfp class QuoteGenerator {
 			
 			if(rowDiscount) {
 				productsTable.addCell(PdfUtil.getCell(new BigDecimal((double) row.discountPerc).setScale(1, RoundingMode.HALF_UP).toString() + "%", false, TextAlignment.CENTER));
-				productsTable.addCell(PdfUtil.getCell(EURO + new BigDecimal((double) totalProductPrice).setScale(2, RoundingMode.HALF_UP).toString(), false, TextAlignment.RIGHT));
+				productsTable.addCell(PdfUtil.getCell(EURO + new BigDecimal((double) totalProductPrice / row.quantity).setScale(2, RoundingMode.HALF_UP).toString(), false, TextAlignment.RIGHT));
 			}
 			
 			productsTable.addCell(PdfUtil.getCell(new BigDecimal((double) row.vatPerc).setScale(1, RoundingMode.HALF_UP).toString() + "%", false, TextAlignment.CENTER));

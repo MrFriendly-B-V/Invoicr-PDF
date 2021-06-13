@@ -10,18 +10,18 @@ group = 'dev.array21'
 mainClassName = 'dev.array21.invoicrpdf.InvoicrPdf'
 version = '1.0'
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+sourceCompatibility = 1.16
+targetCompatibility = 1.16
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile 'com.itextpdf:layout:7.1.15'
-    compile 'com.google.code.gson:gson:2.8.6'
-    compile 'org.springframework.boot:spring-boot-starter-web'
-    compile 'org.apache.logging.log4j:log4j-core:2.14.1'
-    compile 'org.apache.logging.log4j:log4j-api:2.14.1'
-    compile 'org.yaml:snakeyaml:1.28'
+    implementation 'com.itextpdf:layout:7.1.15'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
+    implementation 'org.yaml:snakeyaml:1.28'
 }

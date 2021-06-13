@@ -16,7 +16,7 @@ public class InvoicrPdf {
 	public static boolean DEBUG = false;
 	public static boolean AUTH = true;
 	private static Configuration config;
-	
+
 	public static void main(String[] args) {
 		String port = "8080";
 		String configPath = null;
